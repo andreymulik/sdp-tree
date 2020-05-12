@@ -1,0 +1,5 @@
+version 0.2:
+  ADDED:
+    * Node, DegreeNode, WideNode and ShiftNode classes (SDP.Node)
+    * Tree and ParentTree classes (SDP.Node)
+
