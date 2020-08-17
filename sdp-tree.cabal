@@ -39,7 +39,12 @@ Library
   ghc-options: -O2 -Wall -Wno-orphans
   
   exposed-modules:
+    -- Core
     SDP.Node
     SDP.Tree
+    
+    -- Template
+    SDP.Templates.GRose
+
 
 

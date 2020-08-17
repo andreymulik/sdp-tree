@@ -98,7 +98,11 @@ pattern es :/*\: bs <- (fromNode -> (es, bs)) where (:/*\:) = node
 
 --------------------------------------------------------------------------------
 
--- | 'WideNode' defines operations on nodes with a variable number of values (width).
+{- |
+  'WideNode' defines operations on nodes with a variable number of values
+  (width). Note that the functions in this class are not intended to be used
+  directly. Please, use patterns (':/+') and (':+\') instead.
+-}
 class (Node n v) => WideNode n v
   where
     {- |
@@ -129,7 +133,11 @@ pattern e :+\ node <- (unsnocNodeValues -> (e, node)) where (:+\) = (+\)
 
 --------------------------------------------------------------------------------
 
--- | 'DegreeNode' defines operations on nodes with a variable number of childs (degree).
+{- |
+  'DegreeNode' defines operations on nodes with a variable number of childs
+  (degree). Note that the functions in this class are not intended to be used
+  directly. Please, use patterns (':/*') and (':*\') instead.
+-}
 class (Node n v) => DegreeNode n v
   where
     {- |
@@ -186,7 +194,7 @@ class (Node n v) => ShiftNode n v
     
     -- | Append branch and value.
     (-\) :: n -> (n, v) -> n
-    ~(es :/*\: bs) -\ (b, e) = (es :< e) :/*\: (bs :< b)
+    (-\) = \ (es :/*\: bs) (b, e) -> (es :< e) :/*\: (bs :< b)
     
     -- | Left 1-position non-cyclic shift of branches and values.
     shiftTL :: n -> n
@@ -227,4 +235,6 @@ nodeRight ns = nodeElem ns (nodeWidth ns - 1)
 -- | Right child in node.
 rightChild :: (Node n v) => n -> n
 rightChild ns = child ns (nodeDegree ns - 1)
+
+
 

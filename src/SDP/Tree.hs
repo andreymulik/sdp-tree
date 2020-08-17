@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, ConstraintKinds #-}
+{-# LANGUAGE MultiParamTypeClasses, ConstraintKinds #-}
 {-# LANGUAGE PatternSynonyms, ViewPatterns #-}
 
 {- |
