@@ -16,6 +16,9 @@ module SDP.Tree
   -- * Exports
   module SDP.Node,
   
+  -- * Tree folds
+  TFold (..),
+  
   -- * Basic tree
   Tree (..), Tree1,
   
@@ -34,6 +37,17 @@ default ()
 
 --------------------------------------------------------------------------------
 
+-- | Class of tree folds.
+class (Node t e) => TFold t e
+  where
+    -- | Breadth-first (width) fold.
+    wfold :: (e -> a -> a) -> a -> t -> a
+    
+    -- | Depth-first NLR (node-left-right) fold.
+    dfold :: (e -> a -> a) -> a -> t -> a
+
+--------------------------------------------------------------------------------
+
 {- |
   Tree - a class of trees, recursive structures consisting of nodes. So, this
   class provides recursive operations, while non-recursive ones are defined in
@@ -41,7 +55,9 @@ default ()
 -}
 class (Node t e) => Tree t e
   where
-    {-# MINIMAL insertTree, deleteTree, ((</|) | shiftCTL), ((|\>) | shiftCTR), minTree, maxTree #-}
+    {-# MINIMAL (fixTree | (normalizeTree, optimizeTree)), isOptimal, isNormal,
+      insertTree, deleteTree, ((</|) | shiftCTL), ((|\>) | shiftCTR), minTree,
+      maxTree #-}
     
     {- |
       Creates tree from lists of values and branches, should be defined
@@ -53,40 +69,79 @@ class (Node t e) => Tree t e
       Note that 'tree' works with values, not elements.
     -}
     tree :: [e] -> [t] -> t
-    tree =  normTree ... node
+    tree =  fixTree ... node
     
-    -- | Tree normalization function, may fail.
-    normTree :: t -> t
-    normTree =  id
+    {- |
+      Advanced tree normalization function, may fail.
+      
+      'fixTree' is function for checking and normalizing the tree, may fail.
+      It also guarantees optimal tree representation.
+      
+      This function is the preferred way to handle an untrusted tree before
+      critical operations.
+      
+      In many cases, 'fixTree' isn't required because other functions in this
+      class guarantee the correctness of the result tree (in their range of
+      values).
+    -}
+    fixTree :: t -> t
+    fixTree =  optimizeTree . normalizeTree
     
-    -- | Returns all tree 'descendant' (childs, childs of childs ...).
+    -- | Checks if the tree is normal.
+    isNormal :: t -> Bool
+    
+    -- | Common tree normalization function, may fail.
+    normalizeTree :: t -> t
+    normalizeTree =  fixTree
+    
+    -- | Checks if the tree is optimal.
+    isOptimal :: t -> Bool
+    
+    -- | Common tree normalization function (only for normalized trees).
+    optimizeTree :: t -> t
+    optimizeTree =  fixTree
+    
+    -- | Return all tree 'descendant' (childs, childs of childs ..).
     descendant :: t -> [t]
     descendant es = let bs = childs es in concat (bs : map descendant bs)
     
-    -- | Returns all tree childs and same tree.
+    -- | Return same tree and all descendants of its childs.
     descendant' :: t -> [t]
     descendant' es = es : descendant es
     
     {- |
-      Inserts element to tree. If the tree already contains such an element and
+      Insert element to tree. If the tree already contains such an element and
       duplicates are not allowed, it should return the given (or equivalent)
       tree.
     -}
     insertTree :: (Eq e) => e -> t -> t
     
     {- |
-      Deletes element from tree. If the tree doesn't contain such an element, it
-      should return the given (or equivalent) tree.
+      Delete element from tree. If the tree doesn't contain such an element, it
+      should return the given tree or equivalent (e.g. may call 'normTree').
       
-      deleteTree doesn't guarantee that the tree will not contain any such
-      elements - if the data is incorrect, it may not be found. Also, some trees
-      allow duplicates.
+      The function ensures that one matching element is removed from the tree.
+      
+      * If the tree can't contain duplicates, then
+      
+      > deleteTree = clearTree
+      
+      *  If the tree shouldn't (but can) contain duplicates, then
+      
+      > removeTree = removeTree. normTree
+      
+      * If the tree can contain duplicates, then the function removes the first
+      element, the order of traversing the elements depends on the tree
+      characteristics.
     -}
     deleteTree :: (Eq e) => e -> t -> t
     
-    -- | Same as 'deleteTree', but remove all such elements.
-    deleteTree' :: (Eq e) => e -> t -> t
-    deleteTree' =  deleteTree
+    {- |
+      Delete all elements from tree. Ensures that the resulting tree contains
+      no matching elements, even if the original data is invalid.
+    -}
+    clearTree :: (Eq e) => e -> t -> t
+    clearTree =  deleteTree
     
     {- |
       Applies function to n-th element. If n is out of range, return the given
