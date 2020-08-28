@@ -137,7 +137,7 @@ instance (Linear1 l (GRose l i e), Index i) => IFold (GRose l i e) i e
     i_foldr f base (e :<: bs) = e `f` foldr (flip $ i_foldr f) base (listL bs)
     i_foldl f base (e :<: bs) = foldl (i_foldl f) (f base e) (listL bs)
 
-instance (Indexed1 l i (GRose l i e), IFold1 l i (GRose l i e)) => TFold (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e), IFold1 l i (GRose l i e)) => TFold (GRose l i e) e
   where
     wfold f base =
       let go (e :<: bs) = ([e] :) . concat . transpose $ i_foldr ((:) . go) [] bs
@@ -149,7 +149,7 @@ instance (Indexed1 l i (GRose l i e), IFold1 l i (GRose l i e)) => TFold (GRose 
 
 {- Node, DegreeNode and Tree instances. -}
 
-instance (Indexed1 l i (GRose l i e)) => Node (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e)) => Node (GRose l i e) e
   where
     node es bs = null es ? empEx "node" $ head es :<: fromList bs
     
@@ -165,7 +165,7 @@ instance (Indexed1 l i (GRose l i e)) => Node (GRose l i e) e
     childs (_ :<: bs) = listL bs
     child  (_ :<: bs) = (bs !^)
 
-instance (Indexed1 l i (GRose l i e)) => DegreeNode (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e)) => DegreeNode (GRose l i e) e
   where
     unconsNodeChilds (e :<: (b :> bs)) = (b, e :<: bs)
     unconsNodeChilds         _         = patEx "unconsNodeChilds"
@@ -178,6 +178,13 @@ instance (Indexed1 l i (GRose l i e)) => DegreeNode (GRose l i e) e
 
 instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
   where
+    fixTree       = id
+    optimizeTree  = id
+    normalizeTree = id
+    
+    isOptimal = const True
+    isNormal  = const True
+    
     tree = node
     
     descendant  = concatMap descendant' . childs
@@ -212,4 +219,7 @@ empEx =  throw . EmptyRange . showString "in SDP.Tree.Rose."
 
 patEx :: String -> a
 patEx =  throw . PatternMatchFail . showString "in SDP.Tree.Rose."
+
+
+
 
