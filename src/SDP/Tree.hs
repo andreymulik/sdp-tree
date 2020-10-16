@@ -63,7 +63,7 @@ class (Node t e) => Tree t e
       everywhere.
       * If there is not enough data (elements or branches), return an empty tree
       * If there is too much data (elements or branches), ignore them
-      * If the resulting tree (may be) incorrect, call 'normTree'
+      * If the resulting tree (may be) incorrect, call 'fixTree'
       
       Note that 'tree' works with values, not elements.
     -}
