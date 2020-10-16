@@ -31,7 +31,6 @@ where
 
 import Prelude ()
 import SDP.SafePrelude
-
 import SDP.Indexed
 
 infix 3 :/*\:
@@ -235,6 +234,7 @@ nodeRight ns = nodeElem ns (nodeWidth ns - 1)
 -- | Right child in node.
 rightChild :: (Node n v) => n -> n
 rightChild ns = child ns (nodeDegree ns - 1)
+
 
 
 

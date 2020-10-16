@@ -87,7 +87,7 @@ instance (Read e, Linear1 l (GRose l i e)) => Read (GRose l i e)
 
 instance (Functor l) => Functor (GRose l i)
   where
-    fmap f (e :<: bs) = f e :<: fmap (fmap f) bs
+    fmap f (e :<: bs) = f e :<: (fmap f <$> bs)
 
 instance (Zip l) => Zip (GRose l i)
   where
@@ -199,7 +199,7 @@ instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
     onElem f 0 (e :<: es) = f e :<: es
     onElem _ _ _ = undefined
     
-    onBranch f i (e :<: es) = e :<: write_ es i (f (es !^ i))
+    onBranch f i (e :<: es) = e :<: write es i (f (es !^ i))
     
     elemPos x (e :<: _) = x == e ? Just 0 $ Nothing
     

@@ -29,7 +29,6 @@ where
 
 import Prelude ()
 import SDP.SafePrelude
-
 import SDP.Indexed
 import SDP.Node
 
@@ -326,5 +325,6 @@ type ParentTree1 t e = ParentTree (t e) e
 -- | Unidirectional pattern synonym for 'isRoot'.
 pattern Root :: (ParentTree t e) => t
 pattern Root <- (isRoot -> True)
+
 
 
