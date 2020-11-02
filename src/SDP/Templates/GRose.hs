@@ -120,30 +120,22 @@ instance (Bordered (GRose l i e) i) => Estimate (GRose l i e)
     (<==>) = on (<=>) sizeOf
     (<.=>) = (<=>) . sizeOf
 
-instance (Linear1 l (GRose l i e), Index i) => Bordered (GRose l i e) i
+instance (Bordered1 l i e, Linear1 l (GRose l i e)) => Bordered (GRose l i e) i
   where
-    sizeOf = k_foldr' (\ _ c -> c + 1) 0
+    sizeOf = \ (_ :<: xs) -> o_foldr' ((+) . sizeOf) 1 xs
     bounds = defaultBounds . sizeOf
 
 --------------------------------------------------------------------------------
 
-{- KFold and TFold instances. -}
+{- TFold instance. -}
 
-instance (Linear1 l (GRose l i e), Index i) => KFold (GRose l i e) i e
-  where
-    kfoldr f base es = let bs = bounds es in kfoldr (f . index bs) base (k_foldr (:) [] es)
-    kfoldl f base es = let bs = bounds es in kfoldl (f . index bs) base (k_foldr (:) [] es)
-    
-    k_foldr f base (e :<: bs) = e `f` foldr (flip $ k_foldr f) base (listL bs)
-    k_foldl f base (e :<: bs) = foldl (k_foldl f) (f base e) (listL bs)
-
-instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e), KFold1 l i (GRose l i e)) => TFold (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e)) => TFold (GRose l i e) e
   where
     wfold f base =
-      let go (e :<: bs) = ([e] :) . concat . transpose $ k_foldr ((:) . go) [] bs
+      let go (e :<: bs) = ([e] :) . concat . transpose $ o_foldr ((:) . go) [] bs
       in  foldr (flip $ foldr f) base . go
     
-    dfold f base (e :<: bs) = e `f` k_foldr (flip $ dfold f) base bs
+    dfold f base (e :<: bs) = e `f` o_foldr (flip $ dfold f) base bs
 
 --------------------------------------------------------------------------------
 
@@ -176,7 +168,7 @@ instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e)) => DegreeNode (G
     b /* (e :<: bs) = e :<: (b :> bs)
     (e :<: bs) *\ b = e :<: (bs :< b)
 
-instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e)) => Tree (GRose l i e) e
   where
     fixTree       = id
     optimizeTree  = id
@@ -197,7 +189,7 @@ instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
         deleteRoot _ = empEx "deleteTree"
     
     onElem f 0 (e :<: es) = f e :<: es
-    onElem _ _ _ = undefined
+    onElem _ _ es = es
     
     onBranch f i (e :<: es) = e :<: write es i (f (es !^ i))
     
@@ -209,8 +201,8 @@ instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
     shiftCTR (e :<: (bs :< b)) = e :<: (b :> bs)
     shiftCTR ns = ns
     
-    minTree es@(e :<: _) = k_foldr min e es
-    maxTree es@(e :<: _) = k_foldr max e es
+    minTree (e :<: es) = o_foldr (min . minTree) e es
+    maxTree (e :<: es) = o_foldr (min . maxTree) e es
 
 --------------------------------------------------------------------------------
 
@@ -219,7 +211,5 @@ empEx =  throw . EmptyRange . showString "in SDP.Tree.Rose."
 
 patEx :: String -> a
 patEx =  throw . PatternMatchFail . showString "in SDP.Tree.Rose."
-
-
 
 
