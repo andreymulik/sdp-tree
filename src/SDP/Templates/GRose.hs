@@ -122,28 +122,28 @@ instance (Bordered (GRose l i e) i) => Estimate (GRose l i e)
 
 instance (Linear1 l (GRose l i e), Index i) => Bordered (GRose l i e) i
   where
-    sizeOf = i_foldr' (\ _ c -> c + 1) 0
+    sizeOf = k_foldr' (\ _ c -> c + 1) 0
     bounds = defaultBounds . sizeOf
 
 --------------------------------------------------------------------------------
 
-{- IFold and TFold instances. -}
+{- KFold and TFold instances. -}
 
-instance (Linear1 l (GRose l i e), Index i) => IFold (GRose l i e) i e
+instance (Linear1 l (GRose l i e), Index i) => KFold (GRose l i e) i e
   where
-    ifoldr f base es = let bs = bounds es in ifoldr (f . index bs) base (i_foldr (:) [] es)
-    ifoldl f base es = let bs = bounds es in ifoldl (f . index bs) base (i_foldr (:) [] es)
+    kfoldr f base es = let bs = bounds es in kfoldr (f . index bs) base (k_foldr (:) [] es)
+    kfoldl f base es = let bs = bounds es in kfoldl (f . index bs) base (k_foldr (:) [] es)
     
-    i_foldr f base (e :<: bs) = e `f` foldr (flip $ i_foldr f) base (listL bs)
-    i_foldl f base (e :<: bs) = foldl (i_foldl f) (f base e) (listL bs)
+    k_foldr f base (e :<: bs) = e `f` foldr (flip $ k_foldr f) base (listL bs)
+    k_foldl f base (e :<: bs) = foldl (k_foldl f) (f base e) (listL bs)
 
-instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e), IFold1 l i (GRose l i e)) => TFold (GRose l i e) e
+instance (Bordered1 l i (GRose l i e), Linear1 l (GRose l i e), KFold1 l i (GRose l i e)) => TFold (GRose l i e) e
   where
     wfold f base =
-      let go (e :<: bs) = ([e] :) . concat . transpose $ i_foldr ((:) . go) [] bs
+      let go (e :<: bs) = ([e] :) . concat . transpose $ k_foldr ((:) . go) [] bs
       in  foldr (flip $ foldr f) base . go
     
-    dfold f base (e :<: bs) = e `f` i_foldr (flip $ dfold f) base bs
+    dfold f base (e :<: bs) = e `f` k_foldr (flip $ dfold f) base bs
 
 --------------------------------------------------------------------------------
 
@@ -209,8 +209,8 @@ instance (Indexed1 l i (GRose l i e)) => Tree (GRose l i e) e
     shiftCTR (e :<: (bs :< b)) = e :<: (b :> bs)
     shiftCTR ns = ns
     
-    minTree es@(e :<: _) = i_foldr min e es
-    maxTree es@(e :<: _) = i_foldr max e es
+    minTree es@(e :<: _) = k_foldr min e es
+    maxTree es@(e :<: _) = k_foldr max e es
 
 --------------------------------------------------------------------------------
 
