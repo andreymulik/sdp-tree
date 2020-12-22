@@ -91,20 +91,50 @@ instance (Functor l) => Functor (GRose l i)
 
 instance (Zip l) => Zip (GRose l i)
   where
-    zipWith  f (e1 :<: bs1) (e2 :<: bs2) =
-      f e1 e2 :<: zipWith (zipWith f) bs1 bs2
+    any2 f (e1:<:bs1) (e2:<:bs2) =
+      f e1 e2 && any2 (any2 f) bs1 bs2
     
-    zipWith3 f (e1 :<: bs1) (e2 :<: bs2) (e3 :<: bs3) =
-      f e1 e2 e3 :<: zipWith3 (zipWith3 f) bs1 bs2 bs3
+    any3 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) =
+      f e1 e2 e3 && any3 (any3 f) bs1 bs2 bs3
     
-    zipWith4 f (e1 :<: bs1) (e2 :<: bs2) (e3 :<: bs3) (e4 :<: bs4) =
-      f e1 e2 e3 e4 :<: zipWith4 (zipWith4 f) bs1 bs2 bs3 bs4
+    any4 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) =
+      f e1 e2 e3 e4 && any4 (any4 f) bs1 bs2 bs3 bs4
     
-    zipWith5 f (e1 :<: bs1) (e2 :<: bs2) (e3 :<: bs3) (e4 :<: bs4) (e5 :<: bs5) =
-      f e1 e2 e3 e4 e5 :<: zipWith5 (zipWith5 f) bs1 bs2 bs3 bs4 bs5
+    any5 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) =
+      f e1 e2 e3 e4 e5 && any5 (any5 f) bs1 bs2 bs3 bs4 bs5
     
-    zipWith6 f (e1 :<: bs1) (e2 :<: bs2) (e3 :<: bs3) (e4 :<: bs4) (e5 :<: bs5) (e6 :<: bs6) =
-      f e1 e2 e3 e4 e5 e6 :<: zipWith6 (zipWith6 f) bs1 bs2 bs3 bs4 bs5 bs6
+    any6 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) (e6:<:bs6) =
+      f e1 e2 e3 e4 e5 e6 && any6 (any6 f) bs1 bs2 bs3 bs4 bs5 bs6
+    
+    all2 f (e1:<:bs1) (e2:<:bs2) =
+      f e1 e2 && all2 (all2 f) bs1 bs2
+    
+    all3 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) =
+      f e1 e2 e3 && all3 (all3 f) bs1 bs2 bs3
+    
+    all4 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) =
+      f e1 e2 e3 e4 && all4 (all4 f) bs1 bs2 bs3 bs4
+    
+    all5 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) =
+      f e1 e2 e3 e4 e5 && all5 (all5 f) bs1 bs2 bs3 bs4 bs5
+    
+    all6 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) (e6:<:bs6) =
+      f e1 e2 e3 e4 e5 e6 && all6 (all6 f) bs1 bs2 bs3 bs4 bs5 bs6
+    
+    zipWith  f (e1:<:bs1) (e2:<:bs2) =
+      f e1 e2:<:zipWith (zipWith f) bs1 bs2
+    
+    zipWith3 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) =
+      f e1 e2 e3:<:zipWith3 (zipWith3 f) bs1 bs2 bs3
+    
+    zipWith4 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) =
+      f e1 e2 e3 e4:<:zipWith4 (zipWith4 f) bs1 bs2 bs3 bs4
+    
+    zipWith5 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) =
+      f e1 e2 e3 e4 e5:<:zipWith5 (zipWith5 f) bs1 bs2 bs3 bs4 bs5
+    
+    zipWith6 f (e1:<:bs1) (e2:<:bs2) (e3:<:bs3) (e4:<:bs4) (e5:<:bs5) (e6:<:bs6) =
+      f e1 e2 e3 e4 e5 e6:<:zipWith6 (zipWith6 f) bs1 bs2 bs3 bs4 bs5 bs6
 
 instance (Foldable l) => Foldable (GRose l i)
   where
