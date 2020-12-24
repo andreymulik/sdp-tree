@@ -26,7 +26,6 @@ import SDP.SafePrelude
 import SDP.Indexed
 import SDP.Tree
 
-import Data.Function
 import Data.List ( transpose )
 
 import Text.Read.SDP
@@ -241,5 +240,6 @@ empEx =  throw . EmptyRange . showString "in SDP.Tree.Rose."
 
 patEx :: String -> a
 patEx =  throw . PatternMatchFail . showString "in SDP.Tree.Rose."
+
 
 
