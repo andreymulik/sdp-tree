@@ -91,7 +91,7 @@ class Node n v | n -> v
 pattern Leaf :: (Node n v) => v -> n
 pattern Leaf e <- (isLeaf ?+ nodeElems -> Just [e]) where Leaf = leaf
 
--- | (:/*\:) is generic pattern synonym for 'node', 'fromNode' and 'childs'.
+-- | (:/*\:) is generic pattern synonym for 'node' and 'fromNode'.
 pattern (:/*\:) :: (Node n v) => [v] -> [n] -> n
 pattern es :/*\: bs <- (fromNode -> (es, bs)) where (:/*\:) = node
 

@@ -96,7 +96,7 @@ class (Node t e) => Tree t e
     -- | Checks if the tree is optimal.
     isOptimal :: t -> Bool
     
-    -- | Common tree normalization function (only for normalized trees).
+    -- | Common tree optimization function (only for normalized trees).
     optimizeTree :: t -> t
     optimizeTree =  fixTree
     
@@ -117,7 +117,7 @@ class (Node t e) => Tree t e
     
     {- |
       Delete element from tree. If the tree doesn't contain such an element, it
-      should return the given tree or equivalent (e.g. may call 'normTree').
+      should return the given tree or equivalent (e.g. may call 'fixTree').
       
       The function ensures that one matching element is removed from the tree.
       
@@ -127,7 +127,7 @@ class (Node t e) => Tree t e
       
       *  If the tree shouldn't (but can) contain duplicates, then
       
-      > removeTree = removeTree. normTree
+      > removeTree = removeTree . fixTree
       
       * If the tree can contain duplicates, then the function removes the first
       element, the order of traversing the elements depends on the tree
